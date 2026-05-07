@@ -53,6 +53,12 @@ if strings.TrimSpace(req.Description) == "" {
 	})
 	return
 }
+if len(strings.TrimSpace(req.Description)) < 5 {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": "Description must be at least 5 characters",
+	})
+	return
+}
 if len(strings.TrimSpace(req.Description)) >  MaxDescriptionLength {
 	c.JSON(http.StatusBadRequest, gin.H{
 		"error": "Description is too long",
