@@ -65,7 +65,8 @@ if len(strings.TrimSpace(req.Description)) >  MaxDescriptionLength {
 	})
 	return
 }
-
+req.Title = strings.TrimSpace(req.Title)
+req.Description = strings.TrimSpace(req.Description)
 
 	// 1. Logic Bulk Assign by Role
 	if req.Role != "" {
