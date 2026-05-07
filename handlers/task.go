@@ -36,6 +36,12 @@ func CreateTask(c *gin.Context) {
 	})
 	return
 }
+if strings.TrimSpace(req.Description) == "" {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": "Description cannot be empty",
+	})
+	return
+}
 
 	// 1. Logic Bulk Assign by Role
 	if req.Role != "" {
