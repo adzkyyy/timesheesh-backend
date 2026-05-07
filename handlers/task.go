@@ -36,6 +36,13 @@ func CreateTask(c *gin.Context) {
 	})
 	return
 }
+if len(strings.TrimSpace(req.Title)) > 100 {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": "Title is too long",
+	})
+	return
+}
+
 if strings.TrimSpace(req.Description) == "" {
 	c.JSON(http.StatusBadRequest, gin.H{
 		"error": "Description cannot be empty",
