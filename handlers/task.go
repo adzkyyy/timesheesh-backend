@@ -49,6 +49,13 @@ if strings.TrimSpace(req.Description) == "" {
 	})
 	return
 }
+if len(strings.TrimSpace(req.Description)) > 500 {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": "Description is too long",
+	})
+	return
+}
+
 
 	// 1. Logic Bulk Assign by Role
 	if req.Role != "" {
