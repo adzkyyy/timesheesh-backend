@@ -22,6 +22,8 @@ type UpdateTaskStatusRequest struct {
 const (
 	MaxTitleLength       = 100
 	MaxDescriptionLength = 500
+	MinTitleLength       = 3
+	MinDescriptionLength = 5
 )
 
 // 1. Create Task (Bisa PM assign orang lain, atau User assign diri sendiri)
@@ -40,6 +42,14 @@ func CreateTask(c *gin.Context) {
 	})
 	return
 }
+
+if len(strings.TrimSpace(req.Title)) < MinTitleLength {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": "Title must be at least 3 characters",
+	})
+	return
+}
+
 if len(strings.TrimSpace(req.Title)) > MaxTitleLength {
 	c.JSON(http.StatusBadRequest, gin.H{
 		"error": "Title is too long",
