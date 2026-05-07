@@ -78,6 +78,13 @@ if len(strings.TrimSpace(req.Description)) >  MaxDescriptionLength {
 req.Title = strings.TrimSpace(req.Title)
 req.Description = strings.TrimSpace(req.Description)
 
+if req.ProjectID == 0 {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": "Project ID is required",
+	})
+	return
+}
+
 	// 1. Logic Bulk Assign by Role
 	if req.Role != "" {
 		// Cari semua member project tersebut yang punya Role ini
