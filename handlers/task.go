@@ -19,6 +19,10 @@ type CreateTaskRequest struct {
 type UpdateTaskStatusRequest struct {
 	Status models.TaskStatus `json:"status" binding:"required"`
 }
+const (
+	MaxTitleLength       = 100
+	MaxDescriptionLength = 500
+)
 
 // 1. Create Task (Bisa PM assign orang lain, atau User assign diri sendiri)
 func CreateTask(c *gin.Context) {
@@ -36,7 +40,7 @@ func CreateTask(c *gin.Context) {
 	})
 	return
 }
-if len(strings.TrimSpace(req.Title)) > 100 {
+if len(strings.TrimSpace(req.Title)) > MaxTitleLength {
 	c.JSON(http.StatusBadRequest, gin.H{
 		"error": "Title is too long",
 	})
@@ -49,7 +53,7 @@ if strings.TrimSpace(req.Description) == "" {
 	})
 	return
 }
-if len(strings.TrimSpace(req.Description)) > 500 {
+if len(strings.TrimSpace(req.Description)) >  MaxDescriptionLength {
 	c.JSON(http.StatusBadRequest, gin.H{
 		"error": "Description is too long",
 	})
