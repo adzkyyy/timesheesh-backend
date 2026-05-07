@@ -56,6 +56,9 @@ func main() {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
+	// Static file serving for uploads
+	r.Static("/uploads", "./uploads")
+
 	// Public routes - Authentication
 	auth := r.Group("/api/auth")
 	{
@@ -68,6 +71,10 @@ func main() {
 	protected.Use(middleware.AuthMiddleware())
 	{
 		protected.GET("/profile", handlers.GetProfile) // Profile
+		protected.PUT("/profile", handlers.UpdateProfile) // Update own profile
+		protected.POST("/upload/profile-picture", handlers.UploadProfilePicture) // Upload profile picture
+		protected.POST("/upload/logo", handlers.UploadWorkspaceLogo) // Upload workspace/company logo
+		
 		protected.GET("/my-contracts", handlers.GetMyContracts) // Get contract user
 
 		// blm di garap
@@ -121,6 +128,7 @@ func main() {
 		projectOps.Use(middleware.AdminOrProjectManager())
 		{
 			projectOps.PUT("/update/:projectId", handlers.UpdateProject) // <--- ADMIN & PM
+			projectOps.POST("/:projectId/upload-image", handlers.UploadProjectImage) // <--- ADMIN & PM
 		}
 
 		// CONTRACT PAYMENT

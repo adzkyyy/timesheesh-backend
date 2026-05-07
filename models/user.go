@@ -36,6 +36,7 @@ type User struct {
 	
 	// New
 	FaceEmbedding string         `gorm:"type:text" json:"-"` // Simpan vektor wajah (hash/string)
+	ImageURL      string         `gorm:"type:varchar(500)" json:"image_url,omitempty"` // Profile picture URL
 	IsActive      bool           `gorm:"default:true" json:"is_active"`
 	
 	// Relations (Optional, for preloading)
