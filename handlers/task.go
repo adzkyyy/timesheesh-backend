@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 	"timesheesh-backend/database"
 	"timesheesh-backend/models"
 	"github.com/gin-gonic/gin"
@@ -18,6 +19,12 @@ type CreateTaskRequest struct {
 type UpdateTaskStatusRequest struct {
 	Status models.TaskStatus `json:"status" binding:"required"`
 }
+const (
+	MaxTitleLength       = 100
+	MaxDescriptionLength = 500
+	MinTitleLength       = 3
+	MinDescriptionLength = 5
+)
 
 // 1. Create Task (Bisa PM assign orang lain, atau User assign diri sendiri)
 func CreateTask(c *gin.Context) {
@@ -29,6 +36,54 @@ func CreateTask(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	if strings.TrimSpace(req.Title) == "" {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": "Title cannot be empty",
+	})
+	return
+}
+
+if len(strings.TrimSpace(req.Title)) < MinTitleLength {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": "Title must be at least 3 characters",
+	})
+	return
+}
+
+if len(strings.TrimSpace(req.Title)) > MaxTitleLength {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": "Title is too long",
+	})
+	return
+}
+
+if strings.TrimSpace(req.Description) == "" {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": "Description cannot be empty",
+	})
+	return
+}
+if len(strings.TrimSpace(req.Description)) < 5 {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": "Description must be at least 5 characters",
+	})
+	return
+}
+if len(strings.TrimSpace(req.Description)) >  MaxDescriptionLength {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": "Description is too long",
+	})
+	return
+}
+req.Title = strings.TrimSpace(req.Title)
+req.Description = strings.TrimSpace(req.Description)
+
+if req.ProjectID == 0 {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": "Project ID is required",
+	})
+	return
+}
 
 	// 1. Logic Bulk Assign by Role
 	if req.Role != "" {
