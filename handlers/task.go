@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 	"timesheesh-backend/database"
 	"timesheesh-backend/models"
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,12 @@ func CreateTask(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	if strings.TrimSpace(req.Title) == "" {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": "Title cannot be empty",
+	})
+	return
+}
 
 	// 1. Logic Bulk Assign by Role
 	if req.Role != "" {
