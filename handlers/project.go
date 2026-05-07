@@ -84,6 +84,8 @@ func UpdateProject(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	req.Name = strings.TrimSpace(req.Name)
+	req.ClientName = strings.TrimSpace(req.ClientName)
 
 	// Update Fields (Partial Update)
 	if req.Name != nil { project.Name = *req.Name }
