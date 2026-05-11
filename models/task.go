@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// TaskStatus mendefinisikan tipe data untuk status pengerjaan sebuah task
 type TaskStatus string
 
 const (
@@ -13,6 +14,7 @@ const (
 	TaskDone       TaskStatus = "done"
 )
 
+// Task merepresentasikan entitas tugas yang berelasi dengan project dan user
 type Task struct {
 	ID           uint       `gorm:"primaryKey" json:"id"`
 	ProjectID    uint       `gorm:"not null" json:"project_id"`
