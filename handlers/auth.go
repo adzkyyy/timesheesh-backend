@@ -85,17 +85,15 @@ func Register(c *gin.Context) {
 
 	// SECURITY CHECK: INITIAL SETUP ONLY 
 	// Check if any admin already exists in the database
-	// DISABLED FOR DEVELOPMENT - allowing open registration
-	// if hasAdmin() {
-	// 	// If an admin exists, public registration is completely closed.
-	// 	// New users must be created by an Admin via the User Management module (POST /api/admin/users).
-	// 	c.JSON(http.StatusForbidden, gin.H{
-	// 		"error": "Public registration is closed. Please contact the Administrator to create an account.",
-	// 	})
-	// 	return
-	// }
+	if hasAdmin() {
+		// If an admin exists, public registration is completely closed.
+		// New users must be created by an Admin via the User Management module (POST /api/admin/users).
+		c.JSON(http.StatusForbidden, gin.H{
+			"error": "Public registration is closed. Please contact the Administrator to create an account.",
+		})
+		return
+	}
 
-	// DISABLED FOR DEVELOPMENT - allowing any role to register
 	// For the first user ever, enforce the Role to be Admin.
 	// We cannot allow the first user to be a regular employee, or the system will be inaccessible.
 	// if req.Role != models.RoleAdmin {
