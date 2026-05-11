@@ -38,10 +38,12 @@ func UploadProfilePicture(c *gin.Context) {
 
 	// Validate file type
 	allowedTypes := map[string]bool{
-		"image/jpeg": true,
-		"image/png":  true,
-		"image/gif":  true,
-		"image/webp": true,
+		"image/jpeg":               true,
+		"image/jpg":                true,
+		"image/png":                true,
+		"image/gif":                true,
+		"image/webp":               true,
+		"application/octet-stream": true,
 	}
 	if !allowedTypes[file.Header.Get("Content-Type")] {
 		c.JSON(400, gin.H{"error": "Only JPEG, PNG, GIF, and WebP images are allowed"})
@@ -60,10 +62,10 @@ func UploadProfilePicture(c *gin.Context) {
 	timestamp := time.Now().Unix()
 	ext := filepath.Ext(file.Filename)
 	filename := fmt.Sprintf("user_%d_%d%s", userID, timestamp, ext)
-	filepath := filepath.Join(uploadsDir, filename)
+	targetPath := filepath.Join(uploadsDir, filename)
 
 	// Save file
-	if err := c.SaveUploadedFile(file, filepath); err != nil {
+	if err := c.SaveUploadedFile(file, targetPath); err != nil {
 		log.Printf("Failed to save uploaded file: %v", err)
 		c.JSON(500, gin.H{"error": "Failed to save file"})
 		return
@@ -158,25 +160,34 @@ func UploadWorkspaceLogo(c *gin.Context) {
 	// Get file from request
 	file, err := c.FormFile("image")
 	if err != nil {
-		c.JSON(400, gin.H{"error": "No file provided"})
+		log.Printf("UploadWorkspaceLogo error: No file provided in field 'image': %v", err)
+		c.JSON(400, gin.H{"error": "No file provided in field 'image'"})
 		return
 	}
 
+	log.Printf("Uploading file: %s, Size: %d, Content-Type: %s", file.Filename, file.Size, file.Header.Get("Content-Type"))
+
 	// Validate file size (max 5MB)
 	if file.Size > 5*1024*1024 {
+		log.Printf("UploadWorkspaceLogo error: File size too large (%d)", file.Size)
 		c.JSON(400, gin.H{"error": "File size must be less than 5MB"})
 		return
 	}
 
 	// Validate file type
+	contentType := file.Header.Get("Content-Type")
 	allowedTypes := map[string]bool{
-		"image/jpeg": true,
-		"image/png":  true,
-		"image/gif":  true,
-		"image/webp": true,
+		"image/jpeg":      true,
+		"image/jpg":       true,
+		"image/png":       true,
+		"image/gif":       true,
+		"image/webp":      true,
+		"application/octet-stream": true, // Fallback for some browsers
 	}
-	if !allowedTypes[file.Header.Get("Content-Type")] {
-		c.JSON(400, gin.H{"error": "Only JPEG, PNG, GIF, and WebP images are allowed"})
+	
+	if !allowedTypes[contentType] {
+		log.Printf("UploadWorkspaceLogo error: Invalid content type: %s", contentType)
+		c.JSON(400, gin.H{"error": "Invalid image type: " + contentType})
 		return
 	}
 
