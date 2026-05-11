@@ -95,6 +95,7 @@ Semua endpoint di bawah memerlukan header:
 ```
 Authorization: Bearer <token>
 ```
+> **Note:** Token JWT didapatkan dari response body setelah berhasil melakukan request ke endpoint Login.
 
 #### Get Profile
 ```http
