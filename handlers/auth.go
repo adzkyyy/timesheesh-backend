@@ -32,7 +32,7 @@ type AuthResponse struct {
 	User  models.User `json:"user"`
 }
 
-// isValidRole checks if role is valid
+// isValidRole checks apakah role valid
 func isValidRole(role models.Role) bool {
 	validRoles := []models.Role{
 		models.RoleAdmin,
@@ -48,7 +48,7 @@ func isValidRole(role models.Role) bool {
 	return false
 }
 
-// isValidEmployeeType checks if employee type is valid
+// isValidEmployeeType checks apakah employee type valid
 func isValidEmployeeType(empType models.EmployeeType) bool {
 	validTypes := []models.EmployeeType{
 		models.EmployeeTypeFulltime,
@@ -84,7 +84,7 @@ func Register(c *gin.Context) {
 	}
 
 	// SECURITY CHECK: INITIAL SETUP ONLY 
-	// Check if any admin already exists in the database
+	// Check apakah admin sudah ada di database
 	if hasAdmin() {
 		// If an admin exists, public registration is completely closed.
 		// New users must be created by an Admin via the User Management module (POST /api/admin/users).
