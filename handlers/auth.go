@@ -96,12 +96,12 @@ func Register(c *gin.Context) {
 
 	// For the first user ever, enforce the Role to be Admin.
 	// We cannot allow the first user to be a regular employee, or the system will be inaccessible.
-	if req.Role != models.RoleAdmin {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "System not initialized. The first user MUST be an 'admin'.",
-		})
-		return
-	}
+	// if req.Role != models.RoleAdmin {
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"error": "System not initialized. The first user MUST be an 'admin'.",
+	// 	})
+	// 	return
+	// }
 	
 	// Validate user role enum
 	if !isValidRole(req.Role) {

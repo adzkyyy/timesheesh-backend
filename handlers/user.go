@@ -23,6 +23,13 @@ type UpdateUserRequest struct {
 	IsActive     *bool                `json:"is_active,omitempty"`
 }
 
+// UpdateProfileRequest represents request to update own profile
+type UpdateProfileRequest struct {
+	FullName string `json:"full_name" binding:"omitempty"`
+	Email    string `json:"email" binding:"omitempty,email"`
+	Password string `json:"password" binding:"omitempty,min=6"`
+}
+
 // CreateUserRequest represents create user request (admin only)
 type CreateUserRequest struct {
 	Email        string               `json:"email" binding:"required,email"`
@@ -259,6 +266,78 @@ func UpdateUser(c *gin.Context) {
 
 	user.Password = ""
 	c.JSON(http.StatusOK, user)
+}
+
+// UpdateProfile allows a user to update their own profile info
+// PUT /api/profile
+func UpdateProfile(c *gin.Context) {
+	userIDValue, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID not found in context"})
+		return
+	}
+
+	// userID usually comes as uint or int from middleware
+	var userID uint
+	switch v := userIDValue.(type) {
+	case uint:
+		userID = v
+	case int:
+		userID = uint(v)
+	case float64:
+		userID = uint(v)
+	default:
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID type in context"})
+		return
+	}
+
+	var user models.User
+	if err := database.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	var req UpdateProfileRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Update Full Name
+	if req.FullName != "" {
+		user.FullName = req.FullName
+	}
+
+	// Update Email (dengan cek duplikasi)
+	if req.Email != "" && req.Email != user.Email {
+		var existingUser models.User
+		if err := database.DB.Where("email = ? AND id != ?", req.Email, userID).First(&existingUser).Error; err == nil {
+			c.JSON(http.StatusConflict, gin.H{"error": "Email already exists"})
+			return
+		}
+		user.Email = req.Email
+	}
+
+	// Update Password
+	if req.Password != "" {
+		hashedPassword, err := utils.HashPassword(req.Password)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+			return
+		}
+		user.Password = hashedPassword
+	}
+
+	if err := database.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update profile"})
+		return
+	}
+
+	user.Password = "" // Sembunyikan password di response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Profile updated successfully",
+		"data":    user,
+	})
 }
 
 func DeleteUser(c *gin.Context) {
